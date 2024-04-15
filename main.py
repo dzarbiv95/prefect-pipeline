@@ -10,10 +10,8 @@ IMAGES_FOLDER = 'your-s3-bucket'
 LIMIT_SIZE = (1024, 1024)
 
 
-
-
 @task
-def scrape_images():
+def scrape_images(scraper: WebScraper):
     next_img_data = scraper.next_image()
     if next_img_data is not None:
         return next_img_data
@@ -60,7 +58,7 @@ def save_results(img_name, people, faces, match):
 
 @task(name="process one image", retries=3)
 def process_one_image(scraper: WebScraper) -> bool:
-    img_data, img_name = scrape_images()
+    img_data, img_name = scrape_images(scraper)
     if img_name is None:
         return False
     logging.info(f'Processing image {img_name}')
