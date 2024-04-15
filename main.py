@@ -73,7 +73,7 @@ def process_one_image(scraper: WebScraper) -> bool:
 
 
 @flow(name='ImageProcessing Flow', log_prints=True)
-def main():
+def father_flow():
     scraper = WebScraper(IMAGES_FOLDER)
     exists_images = True
     while exists_images:
@@ -81,4 +81,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    father_flow()
