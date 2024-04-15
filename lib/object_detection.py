@@ -52,7 +52,7 @@ class DetectPeople:
     @classmethod
     def init(cls):
         cls.object_detection_model = ObjectDetection(
-            model_path="lib/saved_models/faster_rcnn-inception_resnet_v2",
+            model_path="google/faster-rcnn-inception-resnet-v2/tensorFlow1/faster-rcnn-openimages-v4-inception-resnet-v2",
             detection_class_labels=[69],  # 69 is the label for person
             accuracy_threshold=0.3
         )
@@ -73,7 +73,7 @@ class DetectFaces:
     @classmethod
     def init(cls):
         cls.object_detection_model = ObjectDetection(
-            model_path="lib/saved_models/faster_rcnn-inception_resnet_v2",
+            model_path="google/faster-rcnn-inception-resnet-v2/tensorFlow1/faster-rcnn-openimages-v4-inception-resnet-v2",
             detection_class_labels=[502],  # 502 is the label for human faces
             accuracy_threshold=0.3
         )
