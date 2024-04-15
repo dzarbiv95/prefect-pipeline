@@ -80,7 +80,12 @@ class WebScraper:
             if href:
                 urls_queue.append(self.calc_abs_url(self.scrap_url, href))
 
-    def next_image(self):
+    def next_image(self) -> tuple[str, bytes]:
+        """
+        Get the next image from the scraper
+
+        :return: tuple[str, bytes]: Image name and image data
+        """
         if not self._scrap_images_generator:
             self._scrap_images_generator = self.fetch_and_save_images()
         return next(self._scrap_images_generator)
