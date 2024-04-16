@@ -54,10 +54,8 @@ def detect_people(model, img_tensor: tf.Tensor) -> list[dict]:
             if result['detection_scores'][i] >= DETECT_PEOPLE_THRESHOLD and result['detection_class_labels'][
                     i] in DETECT_PEOPLE_CLASS_LABELS:
                 prediction.append({
-                    "label": result['detection_class_labels'][i],
-                    "entity": result['detection_class_entities'][i],
-                    "score": result['detection_scores'][i],
-                    "box": result['detection_boxes'][i],
+                    "score": float(result['detection_scores'][i]),
+                    "box": [float(v) for v in result['detection_boxes'][i]],
                     "id": uuid.uuid4().hex
                 })
     return prediction
@@ -72,10 +70,8 @@ def detect_faces(model, img_tensor: tf.Tensor) -> list[dict]:
         if result['detection_scores'][i] >= DETECT_FACES_THRESHOLD and result['detection_class_labels'][
                 i] in DETECT_FACES_CLASS_LABELS:
             prediction.append({
-                "label": result['detection_class_labels'][i],
-                "entity": result['detection_class_entities'][i],
-                "score": result['detection_scores'][i],
-                "box": result['detection_boxes'][i],
+                "score": float(result['detection_scores'][i]),
+                "box": [float(v) for v in result['detection_boxes'][i]],
                 "id": uuid.uuid4().hex
             })
     return prediction
