@@ -12,18 +12,8 @@ from prefect.task_runners import ConcurrentTaskRunner
 
 from db_connection import get_connection
 from scrap_images import get_url, save_image, extract_image_urls
-
-
-DETECT_PEOPLE_MODEL = "lib/saved_models/faster_rcnn-inception_resnet_v2"
-DETECT_PEOPLE_THRESHOLD = 0.3
-DETECT_PEOPLE_CLASS_LABELS = [69]  # 69 is the label for person
-
-DETECT_FACES_MODEL = "lib/saved_models/faster_rcnn-inception_resnet_v2"
-DETECT_FACES_THRESHOLD = 0.3
-DETECT_FACES_CLASS_LABELS = [502]  # 502 is the label for human faces
-
-
-URL_FOR_SCRAP = "https://he.wikipedia.org/wiki/%D7%A2%D7%9E%D7%95%D7%93_%D7%A8%D7%90%D7%A9%D7%99"
+from constants import DETECT_PEOPLE_THRESHOLD, DETECT_PEOPLE_CLASS_LABELS, DETECT_PEOPLE_MODEL, \
+    DETECT_FACES_THRESHOLD, DETECT_FACES_CLASS_LABELS, DETECT_FACES_MODEL, IMAGE_MAX_SIZE, URL_FOR_SCRAP
 
 concurrency_limit = 2
 concurrency_pool = []
@@ -39,6 +29,16 @@ def limit_concurrency(p_id: str) -> bool:
 @task(retries=3, retry_delay_seconds=10)
 def load_model(model_url_path: str):
     return tf.saved_model.load(model_url_path)
+
+
+@task
+def process_img(img_data_dict: dict) -> dict:
+    img = Image.open(io.BytesIO(img_data_dict['img_data']))
+    img = img.resize(IMAGE_MAX_SIZE)  # Resize image as required by the model
+    img = img.convert("RGB")
+    img_array = np.array(img) / 255.0  # Normalize the image
+    np_arr = np.expand_dims(img_array, axis=0)
+    return tf.convert_to_tensor(np_arr, dtype=tf.float32)
 
 
 @task
@@ -102,16 +102,6 @@ def save_results(img_data: dict, match_detections: dict, people_detection: dict,
         "match_detections": match_detections
     }
     collcetion.replace_one({"_id": img_data['img_name']}, document, upsert=True)
-
-
-@task
-def process_img(img_data_dict: dict) -> dict:
-    img = Image.open(io.BytesIO(img_data_dict['img_data']))
-    img = img.resize((512, 512))  # Resize image as required by the model
-    img = img.convert("RGB")
-    img_array = np.array(img) / 255.0  # Normalize the image
-    np_arr = np.expand_dims(img_array, axis=0)
-    return tf.convert_to_tensor(np_arr, dtype=tf.float32)
 
 
 @flow(log_prints=True, task_runner=ConcurrentTaskRunner())
